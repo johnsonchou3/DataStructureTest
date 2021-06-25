@@ -1,0 +1,15 @@
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.exe
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.deps.json
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.runtimeconfig.json
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.runtimeconfig.dev.json
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.dll
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\bin\Debug\netcoreapp3.1\DataStructureTest.pdb
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.csproj.AssemblyReference.cache
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.Form1.resources
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.csproj.GenerateResource.cache
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.AssemblyInfoInputs.cache
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.AssemblyInfo.cs
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.csproj.CoreCompileInputs.cache
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.dll
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.pdb
+C:\Users\johns\OneDrive\文件\Cmoney\新進\read\DataStructureTest\DataStructureTest\obj\Debug\netcoreapp3.1\DataStructureTest.genruntimeconfig.cache
