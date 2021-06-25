@@ -12,15 +12,24 @@ namespace DataStructureTest
     /// </summary>
     public partial class Form1 : Form
     {
-        List<Sdata> Datalist = new List<Sdata>();
         /// <summary>
-        /// 開啟Winform
+        /// 原CSV產出的Sdata List
+        /// </summary>
+        private List<Sdata> Datalist = new List<Sdata>();
+
+        /// <summary>
+        /// winform 內容
         /// </summary>
         public Form1()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 讀取檔案按鈕
+        /// </summary>
+        /// <param name="sender">按下讀取檔案發生</param>
+        /// <param name="e">事件數據</param>
         private void Button1_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog1 = new OpenFileDialog())
@@ -34,8 +43,12 @@ namespace DataStructureTest
                     label1.Text = "讀檔完成";
                 }
             }
-
         }
+
+        /// <summary>
+        /// 根據Filepath 而產生Datalist 並產出combobox
+        /// </summary>
+        /// <param name="filePath">根據dialog選檔自動產出filepath</param>
         private void BindDataCSV(string filePath)
         {
             Stopwatch loadtime = new Stopwatch();
@@ -59,23 +72,34 @@ namespace DataStructureTest
             combotime.Stop();
             richTextBox1.Text += "ComboBox產生時間 : " + ShowTime(combotime) + "\n";
         }
+
+        /// <summary>
+        /// 將stopwatch 物件變成string 的function
+        /// </summary>
+        /// <param name="stopwatch">必須已完成start+stop 的stopwatch 物件</param>
+        /// <returns></returns>
         private string ShowTime(Stopwatch stopwatch)
         {
             TimeSpan ts = stopwatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}:{3:00}",
+            string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}:{3:00}",
             ts.Hours, ts.Minutes, ts.Seconds,
             ts.Milliseconds);
             return elapsedTime;
         }
-        private void button2_Click(object sender, EventArgs e)
+
+        /// <summary>
+        /// 按鈕二, 查詢特定股並顯示於dgv1, dgv2
+        /// </summary>
+        /// <param name="sender">按下查詢股票發生</param>
+        /// <param name="e">事件數據</param>
+        private void Button2_Click(object sender, EventArgs e)
         {
             List<Sdata> searchdata = new List<Sdata>();
             List<Sdetail> searchdetail = new List<Sdetail>();
-            bool combohastxt = !String.IsNullOrEmpty(comboBox1.Text);
+            bool combohastxt = !string.IsNullOrEmpty(comboBox1.Text);
             string comboinput = comboBox1.Text;
-            string[] selectedstock = GetTextArray(comboinput); 
+            string[] selectedstock = GetTextArray(comboinput);
             Stopwatch searchtime = new Stopwatch();
-
             if (combohastxt)
             {
                 searchtime.Start();
@@ -91,10 +115,22 @@ namespace DataStructureTest
                 richTextBox1.Text += "查詢時間 : " + ShowTime(searchtime) + "\n";
             }
         }
+
+        /// <summary>
+        /// 得到全部stockid 的function
+        /// </summary>
+        /// <param name="alldatas">所有Data</param>
+        /// <returns></returns>
         private string[] GetListOfStockIds(IEnumerable<Sdata> alldatas)
         {
             return alldatas.Select(row => row.StockID).Distinct().ToArray();
         }
+
+        /// <summary>
+        /// 取得combobox 內容並取得ID, 並回傳string[ID]
+        /// </summary>
+        /// <param name="combotext">讀取Combotext.text的內容</param>
+        /// <returns>回傳string array [ID]</returns>
         private string[] GetTextArray(string combotext)
         {
             bool inputtype1 = combotext == "All";
@@ -115,16 +151,21 @@ namespace DataStructureTest
             }
             else
             {
-                return new[] {combotext};
+                return new[] { combotext };
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 按鈕三, 查詢Top50 +-BuyCellTotal
+        /// </summary>
+        /// <param name="sender">按下「買賣超Top50」發生</param>
+        /// <param name="e">事件數據</param>
+        private void Button3_Click(object sender, EventArgs e)
         {
             Stopwatch top50timer = new Stopwatch();
             List<Sdata> searchdata = new List<Sdata>();
             List<Top50> Top50list = new List<Top50>();
-            bool combohastxt = !String.IsNullOrEmpty(comboBox1.Text);
+            bool combohastxt = !string.IsNullOrEmpty(comboBox1.Text);
             string comboinput = comboBox1.Text;
             string[] selectedstock = GetTextArray(comboinput);
 
@@ -140,7 +181,5 @@ namespace DataStructureTest
                 richTextBox1.Text += "Top50 產生時間 : " + ShowTime(top50timer) + "\n";
             }
         }
-
-
     }
 }

@@ -1,7 +1,9 @@
-﻿
-namespace DataStructureTest
+﻿namespace DataStructureTest
 {
-    partial class Form1
+    /// <summary>
+    /// WinForm 程式, 讀取CSV 轉成list並作查詢
+    /// </summary>
+    public partial class Form1
     {
         /// <summary>
         ///  Required designer variable.
@@ -118,7 +120,7 @@ namespace DataStructureTest
             this.button2.TabIndex = 7;
             this.button2.Text = "股票查詢";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
             // 
             // button3
             // 
@@ -128,7 +130,7 @@ namespace DataStructureTest
             this.button3.TabIndex = 8;
             this.button3.Text = "買賣超Top50";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
             // 
             // comboBox1
             // 
@@ -165,17 +167,59 @@ namespace DataStructureTest
 
         #endregion
 
+        /// <summary>
+        /// Button1-讀取檔案並顯示全部於dgv1
+        /// </summary>
         private System.Windows.Forms.Button button1;
+
+        /// <summary>
+        /// 跳出讀取檔案框
+        /// </summary>
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+
+        /// <summary>
+        /// 顯示Filepath之textbox
+        /// </summary>
         private System.Windows.Forms.TextBox txtFilePath;
+
+        /// <summary>
+        /// Dgv1, 顯示sdata 型式內容(基本資訊)
+        /// </summary>
         private System.Windows.Forms.DataGridView dgv1;
+
+        /// <summary>
+        /// Dgv2, 顯示SDetail 型式內容(查詢細節)
+        /// </summary>
         private System.Windows.Forms.DataGridView dgv2;
+
+        /// <summary>
+        /// label1 顯示讀取狀態
+        /// </summary>
         private System.Windows.Forms.Label label1;
+
+        /// <summary>
+        /// richTextBox1 顯示跑完的時間
+        /// </summary>
         private System.Windows.Forms.RichTextBox richTextBox1;
+
+        /// <summary>
+        /// Dgv3, 顯示Top50 型式內容(Top50超買賣)
+        /// </summary>
         private System.Windows.Forms.DataGridView dgv3;
+
+        /// <summary>
+        /// Button2-根據combobox內容顯示細節資訊於dgv1,2
+        /// </summary>
         private System.Windows.Forms.Button button2;
+
+        /// <summary>
+        /// Button3-根據combobox內容顯示Top50資訊於dgv3
+        /// </summary>
         private System.Windows.Forms.Button button3;
+
+        /// <summary>
+        /// comboBox1-會顯示"ID - 股名"選單, 也可以手動輸入ID
+        /// </summary>
         private System.Windows.Forms.ComboBox comboBox1;
     }
 }
-

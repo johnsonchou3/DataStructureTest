@@ -6,13 +6,16 @@ using System.Windows.Forms;
 
 namespace DataStructureTest
 {
-    static class Program
+    /// <summary>
+    /// ¶]Form1 µ{¦¡
+    /// </summary>
+    public static class Program
     {
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();

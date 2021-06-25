@@ -3,14 +3,32 @@ using System.Linq;
 
 namespace DataStructureTest
 {
+    /// <summary>
+    /// 展示在Dgv3 的物件,顯示Top50 +-超買賣
+    /// </summary>
     public class Top50
     {
+        /// <summary>
+        /// 股票名稱
+        /// </summary>
         public string StockName { get; set; }
 
+        /// <summary>
+        /// 卷商名稱
+        /// </summary>
         public string SecBrokerName { get; set; }
 
+        /// <summary>
+        /// 超買賣數
+        /// </summary>
         public int BuyCellOver { get; set; }
 
+        /// <summary>
+        /// 將輸入進的ID的sdata list 轉成Top50物件的list
+        /// </summary>
+        /// <param name="stockid">參數1-所選之ID</param>
+        /// <param name="datalist">參數2-整張Datatable</param>
+        /// <returns>回傳top50物件的list, 可直接輸出到dgv3</returns>
         public static List<Top50> GetTop50(string stockid, List<Sdata> datalist)
         {
             List<Top50> Top50list = new List<Top50>();
@@ -33,12 +51,10 @@ namespace DataStructureTest
                 {
                     Top50listneg.Add(top50);
                 }
-                }
+            }
             Top50list.AddRange(Top50listpos.OrderByDescending(row => row.BuyCellOver).ToList().Take(50));
             Top50list.AddRange(Top50listneg.OrderBy(data => data.BuyCellOver).Take(50).ToList().Take(50));
             return Top50list;
         }
-            
-        }
     }
-
+}
