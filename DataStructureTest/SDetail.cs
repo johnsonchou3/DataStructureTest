@@ -22,8 +22,8 @@ namespace DataStructureTest
         public static Sdetail ComputeDetails(List<Sdata> selecteddata)
         {
             Sdetail Sdetail = new Sdetail();
-            Sdetail.StockID = selecteddata.Select(row => row.StockID).FirstOrDefault().ToString();
-            Sdetail.StockName = selecteddata.Select(row => row.StockName).FirstOrDefault().ToString();
+            Sdetail.StockID = selecteddata.Select(row => row.StockID).First().ToString();
+            Sdetail.StockName = selecteddata.Select(row => row.StockName).First().ToString();
             Sdetail.BuyTotal = selecteddata.Sum(row => row.BuyQty);
             Sdetail.CellTotal = selecteddata.Sum(row => row.CellQty);
             Sdetail.AvgPrice = selecteddata.Sum(row => GetRevenue(row.Price, row.BuyQty, row.CellQty))

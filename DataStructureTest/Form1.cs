@@ -81,9 +81,9 @@ namespace DataStructureTest
                 searchtime.Start();
                 foreach (string stock in selectedstock)
                 {
-                    
-                    searchdata.AddRange(Datalist.Where(row => row.StockID == stock));
-                    searchdetail.Add(Sdetail.ComputeDetails(searchdata));
+                    List<Sdata> tempsdata = Datalist.Where(row => row.StockID == stock).ToList();
+                    searchdata.AddRange(tempsdata);
+                    searchdetail.Add(Sdetail.ComputeDetails(tempsdata));
                 }
                 dgv1.DataSource = searchdata;
                 dgv2.DataSource = searchdetail;
