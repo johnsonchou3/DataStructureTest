@@ -4,6 +4,8 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading;
+using System.Text;
 
 namespace DataStructureTest
 {
@@ -16,6 +18,16 @@ namespace DataStructureTest
         /// 原CSV產出的Sdata List
         /// </summary>
         private List<Sdata> Datalist = new List<Sdata>();
+
+        /// <summary>
+        /// id 對sdata list 的dictionary
+        /// </summary>
+        private Dictionary<string, List<Sdata>> datadic = new Dictionary<string, List<Sdata>>();
+
+        /// <summary>
+        /// id 對name 的dictionary
+        /// </summary>
+        private Dictionary<string, string> idnamedic = new Dictionary<string, string>();
 
         /// <summary>
         /// winform 內容
@@ -39,7 +51,8 @@ namespace DataStructureTest
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     txtFilePath.Text = openFileDialog1.FileName;
-                    BindDataCSV(txtFilePath.Text);
+                    Thread t = new Thread(new ParameterizedThreadStart(BindDataCSV));
+                    t.Start(txtFilePath.Text);
                     label1.Text = "讀檔完成";
                 }
             }
@@ -48,29 +61,43 @@ namespace DataStructureTest
         /// <summary>
         /// 根據Filepath 而產生Datalist 並產出combobox
         /// </summary>
-        /// <param name="filePath">根據dialog選檔自動產出filepath</param>
-        private void BindDataCSV(string filePath)
+        /// <param name="filePathobj">根據dialog選檔自動產出filepathobj以讓Thread使用, 再轉成string</param>
+        private void BindDataCSV(object filePathobj)
         {
+            string filePath = filePathobj as string;
             Stopwatch loadtime = new Stopwatch();
             Stopwatch combotime = new Stopwatch();
             //讀檔計時
             loadtime.Start();
-            Datalist = System.IO.File.ReadAllLines(filePath)
+            Datalist = System.IO.File.ReadAllLines(filePath, Encoding.UTF8)
                                                .Skip(1)
                                                .Select(v => Sdata.FromCsv(v))
                                                .ToList();
-            dgv1.DataSource = Datalist;
-            loadtime.Stop();
-            richTextBox1.Text += "讀取時間 : " + ShowTime(loadtime) + "\n";
-            combotime.Start();
-            comboBox1.Items.Add("All");
-            var comboinfo = Datalist.Select(row => new { row.StockID, row.StockName }).Distinct().ToList();
-            for (int i = 0; i < comboinfo.Count; i++)
+            datadic = Datalist.GroupBy(row => row.StockID).ToDictionary(grp => grp.Key, grp => grp.ToList());
+            idnamedic = Datalist.GroupBy(row => row.StockID).ToDictionary(grp => grp.Key, grp => grp.ToList().Select(row => row.StockName).First().ToString());
+            this.Invoke((MethodInvoker)delegate
             {
-                comboBox1.Items.Add(comboinfo[i].StockID + " - " + comboinfo[i].StockName);
-            }
+                dgv1.DataSource = Datalist;
+            });
+            loadtime.Stop();
+            this.Invoke((MethodInvoker)delegate
+            {
+                richTextBox1.Text += "讀取時間 : " + ShowTime(loadtime) + "\n";
+            });
+            combotime.Start();
+            this.Invoke((MethodInvoker)delegate
+            {
+                comboBox1.Items.Add("All");
+                foreach (KeyValuePair<string, string> pair in idnamedic)
+                {
+                    comboBox1.Items.Add(pair.Key + " - " + pair.Value);
+                }
+            });
             combotime.Stop();
-            richTextBox1.Text += "ComboBox產生時間 : " + ShowTime(combotime) + "\n";
+            this.Invoke((MethodInvoker)delegate
+            {
+                richTextBox1.Text += "ComboBox產生時間 : " + ShowTime(combotime) + "\n";
+            });
         }
 
         /// <summary>
@@ -100,19 +127,24 @@ namespace DataStructureTest
             string comboinput = comboBox1.Text;
             string[] selectedstock = GetTextArray(comboinput);
             Stopwatch searchtime = new Stopwatch();
-            if (combohastxt)
+            if (combohastxt & IDisValid(selectedstock))
             {
                 searchtime.Start();
                 foreach (string stock in selectedstock)
                 {
-                    List<Sdata> tempsdata = Datalist.Where(row => row.StockID == stock).ToList();
+                    List<Sdata> tempsdata = datadic[stock];
+                    Sdetail tempsdetail = Sdetail.ComputeDetails(tempsdata);
                     searchdata.AddRange(tempsdata);
-                    searchdetail.Add(Sdetail.ComputeDetails(tempsdata));
+                    searchdetail.Add(tempsdetail);
                 }
                 dgv1.DataSource = searchdata;
                 dgv2.DataSource = searchdetail;
                 searchtime.Stop();
                 richTextBox1.Text += "查詢時間 : " + ShowTime(searchtime) + "\n";
+            }
+            else
+            {
+                MessageBox.Show("輸入錯誤", "輸入錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -156,6 +188,23 @@ namespace DataStructureTest
         }
 
         /// <summary>
+        /// 檢查id 是否在data 內
+        /// </summary>
+        /// <param name="inputids">輸入id的array, 用GetTextArray(comboboxtext)取得</param>
+        /// <returns></returns>
+        private bool IDisValid(string[] inputids)
+        {
+            foreach (string id in inputids)
+            {
+                if (!idnamedic.ContainsKey(id))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// 按鈕三, 查詢Top50 +-BuyCellTotal
         /// </summary>
         /// <param name="sender">按下「買賣超Top50」發生</param>
@@ -169,16 +218,23 @@ namespace DataStructureTest
             string comboinput = comboBox1.Text;
             string[] selectedstock = GetTextArray(comboinput);
 
-            if (combohastxt)
+            if (combohastxt & IDisValid(selectedstock))
             {
                 top50timer.Start();
                 foreach (string stock in selectedstock)
                 {
-                    Top50list.AddRange(Top50.GetTop50(stock, Datalist));
+                    List<Top50> tempTop50list = new List<Top50>();
+                    List<Sdata> tempsdata = datadic[stock];
+                    tempTop50list = Top50.GetTop50(tempsdata);
+                    Top50list.AddRange(tempTop50list);
                 }
                 dgv3.DataSource = Top50list;
                 top50timer.Stop();
                 richTextBox1.Text += "Top50 產生時間 : " + ShowTime(top50timer) + "\n";
+            }
+            else
+            {
+                MessageBox.Show("輸入錯誤", "輸入錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

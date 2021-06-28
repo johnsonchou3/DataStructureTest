@@ -55,8 +55,15 @@ namespace DataStructureTest
             Sdetail.StockName = selecteddata.Select(row => row.StockName).First().ToString();
             Sdetail.BuyTotal = selecteddata.Sum(row => row.BuyQty);
             Sdetail.CellTotal = selecteddata.Sum(row => row.CellQty);
-            Sdetail.AvgPrice = selecteddata.Sum(row => GetRevenue(row.Price, row.BuyQty, row.CellQty))
+            if (Sdetail.BuyTotal + Sdetail.CellTotal != 0)
+            {
+                Sdetail.AvgPrice = selecteddata.Sum(row => GetRevenue(row.Price, row.BuyQty, row.CellQty))
                                / (Sdetail.BuyTotal + Sdetail.CellTotal);
+            }
+            else
+            {
+                Sdetail.AvgPrice = 0;
+            }
             Sdetail.BuyCellOver = Sdetail.BuyTotal - Sdetail.CellTotal;
             Sdetail.SetBrokerCnt = selecteddata.Select(row => row.SecBrokerID).Distinct().Count();
             //lambda

@@ -24,19 +24,18 @@ namespace DataStructureTest
         public int BuyCellOver { get; set; }
 
         /// <summary>
-        /// 將輸入進的ID的sdata list 轉成Top50物件的list
+        /// 輸入已用stockid過濾的Sdata list, 會回傳出Top50物件的list
         /// </summary>
-        /// <param name="stockid">參數1-所選之ID</param>
-        /// <param name="datalist">參數2-整張Datatable</param>
-        /// <returns>回傳top50物件的list, 可直接輸出到dgv3</returns>
-        public static List<Top50> GetTop50(string stockid, List<Sdata> datalist)
+        /// <param name="selecteddata">輸入sdata list, 需要單一ID</param>
+        /// <returns>回傳Top50 的list </returns>
+        public static List<Top50> GetTop50(List<Sdata> selecteddata)
         {
             List<Top50> Top50list = new List<Top50>();
             List<Top50> Top50listpos = new List<Top50>();
             List<Top50> Top50listneg = new List<Top50>();
             string StockName;
-            StockName = datalist.Where(row => row.StockID == stockid).Select(row => row.StockName).FirstOrDefault().ToString();
-            var secidgroup = datalist.Where(row => row.StockID == stockid).GroupBy(x => x.SecBrokerName);
+            StockName = selecteddata.Select(row => row.StockName).FirstOrDefault().ToString();
+            var secidgroup = selecteddata.GroupBy(x => x.SecBrokerName);
             foreach (var secid in secidgroup)
             {
                 Top50 top50 = new Top50();
