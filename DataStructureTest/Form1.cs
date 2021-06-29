@@ -304,5 +304,16 @@ namespace DataStructureTest
                 MessageBox.Show("輸入錯誤", "輸入錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        /// <summary>
+        /// 讓richtextbox1 會隨資料增加往下, 顯示最新
+        /// </summary>
+        /// <param name="sender">文字更改時發生</param>
+        /// <param name="e">事件數據</param>
+        private void RichTextBox_TextChanged(object sender, EventArgs e)
+        {
+            richTextBox1.SelectionStart = richTextBox1.Text.Length;
+            richTextBox1.ScrollToCaret();
+        }
     }
 }

@@ -102,6 +102,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(354, 194);
             this.richTextBox1.TabIndex = 5;
             this.richTextBox1.Text = "";
+            richTextBox1.TextChanged += RichTextBox_TextChanged;
             // 
             // dgv3
             // 
