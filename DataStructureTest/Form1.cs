@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
 using System.Text;
@@ -22,12 +21,12 @@ namespace DataStructureTest
         /// <summary>
         /// id 對sdata list 的dictionary
         /// </summary>
-        private Dictionary<string, List<Sdata>> datadic = new Dictionary<string, List<Sdata>>();
+        private Dictionary<string, List<Sdata>> Datadic = new Dictionary<string, List<Sdata>>();
 
         /// <summary>
         /// id 對name 的dictionary
         /// </summary>
-        private Dictionary<string, string> idnamedic = new Dictionary<string, string>();
+        private Dictionary<string, string> Idnamedic = new Dictionary<string, string>();
 
         /// <summary>
         /// winform 內容
@@ -67,14 +66,21 @@ namespace DataStructureTest
             string filePath = filePathobj as string;
             Stopwatch loadtime = new Stopwatch();
             Stopwatch combotime = new Stopwatch();
+            bool IsFirstLine = true;
             //讀檔計時
             loadtime.Start();
-            Datalist = System.IO.File.ReadAllLines(filePath, Encoding.UTF8)
-                                               .Skip(1)
-                                               .Select(v => Sdata.FromCsv(v))
-                                               .ToList();
-            datadic = Datalist.GroupBy(row => row.StockID).ToDictionary(grp => grp.Key, grp => grp.ToList());
-            idnamedic = Datalist.GroupBy(row => row.StockID).ToDictionary(grp => grp.Key, grp => grp.ToList().Select(row => row.StockName).First().ToString());
+            string[] arrayoflines = System.IO.File.ReadAllLines(filePath, Encoding.UTF8);
+            foreach (string line in arrayoflines)
+            {
+                if (IsFirstLine)
+                {
+                    IsFirstLine = false;
+                    continue;
+                }
+                Datalist.Add(Sdata.FromCsvLine(line));
+            }
+            Datadic = DataGroupByID(Datalist);
+            Idnamedic = NameGroupByID(Datalist);
             this.Invoke((MethodInvoker)delegate
             {
                 dgv1.DataSource = Datalist;
@@ -88,7 +94,7 @@ namespace DataStructureTest
             this.Invoke((MethodInvoker)delegate
             {
                 comboBox1.Items.Add("All");
-                foreach (KeyValuePair<string, string> pair in idnamedic)
+                foreach (KeyValuePair<string, string> pair in Idnamedic)
                 {
                     comboBox1.Items.Add(pair.Key + " - " + pair.Value);
                 }
@@ -125,14 +131,14 @@ namespace DataStructureTest
             List<Sdetail> searchdetail = new List<Sdetail>();
             bool combohastxt = !string.IsNullOrEmpty(comboBox1.Text);
             string comboinput = comboBox1.Text;
-            string[] selectedstock = GetTextArray(comboinput);
+            List<string> selectedstock = GetTextArray(comboinput);
             Stopwatch searchtime = new Stopwatch();
             if (combohastxt & IDisValid(selectedstock))
             {
                 searchtime.Start();
                 foreach (string stock in selectedstock)
                 {
-                    List<Sdata> tempsdata = datadic[stock];
+                    List<Sdata> tempsdata = Datadic[stock];
                     Sdetail tempsdetail = Sdetail.ComputeDetails(tempsdata);
                     searchdata.AddRange(tempsdata);
                     searchdetail.Add(tempsdetail);
@@ -149,13 +155,18 @@ namespace DataStructureTest
         }
 
         /// <summary>
-        /// 得到全部stockid 的function
+        /// 得到全部stockid 並組成list
         /// </summary>
-        /// <param name="alldatas">所有Data</param>
+        /// <param name="idnamedic">需輸入idtoname的dictionary</param>
         /// <returns></returns>
-        private string[] GetListOfStockIds(IEnumerable<Sdata> alldatas)
+        private List<string> GetListOfStockIds(Dictionary<string, string> idnamedic)
         {
-            return alldatas.Select(row => row.StockID).Distinct().ToArray();
+            List<string> listofids = new List<string>();
+            foreach (KeyValuePair<string, string> idname in idnamedic)
+            {
+                listofids.Add(idname.Key);
+            }
+            return listofids;
         }
 
         /// <summary>
@@ -163,28 +174,84 @@ namespace DataStructureTest
         /// </summary>
         /// <param name="combotext">讀取Combotext.text的內容</param>
         /// <returns>回傳string array [ID]</returns>
-        private string[] GetTextArray(string combotext)
+        private List<string> GetTextArray(string combotext)
         {
             bool inputtype1 = combotext == "All";
             bool inputtype2 = combotext.Contains('-');
             bool inputtype3 = combotext.Contains(',');
             if (inputtype1)
             {
-                return GetListOfStockIds(Datalist);
+                return GetListOfStockIds(Idnamedic);
             }
             else if (inputtype2)
             {
                 int index = combotext.LastIndexOf("-");
-                return new[] { combotext.Substring(0, index - 1) };
+                return new List<string> { combotext.Substring(0, index - 1) };
             }
             else if (inputtype3)
             {
-                return combotext.Split(',');
+                List<string> combotextlist = new List<string>();
+                foreach (string text in combotext.Split(','))
+                {
+                    combotextlist.Add(text);
+                }
+                return combotextlist;
             }
             else
             {
-                return new[] { combotext };
+                return new List<string> { combotext };
             }
+        }
+
+        /// <summary>
+        /// 把同樣ID 的sdata 組成一個list 並以ID 作index 建立dictionary
+        /// </summary>
+        /// <param name="sdatalist">輸入全部sdata 的List </param>
+        /// <returns></returns>
+        private Dictionary<string, List<Sdata>> DataGroupByID(List<Sdata> sdatalist)
+        {
+            Dictionary<string, List<Sdata>> idtolistdic = new Dictionary<string, List<Sdata>>();
+            foreach (Sdata sdata in sdatalist)
+            {
+                string tempid = sdata.StockID;
+                if (idtolistdic.ContainsKey(tempid))
+                {
+                    idtolistdic[tempid].Add(sdata);
+                }
+                else
+                {
+                    List<Sdata> newlist = new List<Sdata>();
+                    newlist.Add(sdata);
+                    idtolistdic.Add(tempid, newlist);
+                }
+            }
+            return idtolistdic;
+        }
+
+        /// <summary>
+        /// 建立ID 對name 的dictionary
+        /// </summary>
+        /// <param name="sdatalist">輸入全部資料的list of sdata </param>
+        /// <returns></returns>
+        private Dictionary<string, string> NameGroupByID(List<Sdata> sdatalist)
+        {
+            Dictionary<string, string> idtonamedic = new Dictionary<string, string>();
+            foreach (Sdata sdata in sdatalist)
+            {
+                string tempid = sdata.StockID;
+                string tempname = sdata.StockName;
+                if (idtonamedic.ContainsKey(tempid))
+                {
+                    continue;
+                }
+                else
+                {
+                    List<Sdata> newlist = new List<Sdata>();
+                    newlist.Add(sdata);
+                    idtonamedic.Add(tempid, tempname);
+                }
+            }
+            return idtonamedic;
         }
 
         /// <summary>
@@ -192,11 +259,11 @@ namespace DataStructureTest
         /// </summary>
         /// <param name="inputids">輸入id的array, 用GetTextArray(comboboxtext)取得</param>
         /// <returns></returns>
-        private bool IDisValid(string[] inputids)
+        private bool IDisValid(List<string> inputids)
         {
             foreach (string id in inputids)
             {
-                if (!idnamedic.ContainsKey(id))
+                if (!Idnamedic.ContainsKey(id))
                 {
                     return false;
                 }
@@ -213,10 +280,10 @@ namespace DataStructureTest
         {
             Stopwatch top50timer = new Stopwatch();
             List<Sdata> searchdata = new List<Sdata>();
-            List<Top50> Top50list = new List<Top50>();
+            List<Top50> top50list = new List<Top50>();
             bool combohastxt = !string.IsNullOrEmpty(comboBox1.Text);
             string comboinput = comboBox1.Text;
-            string[] selectedstock = GetTextArray(comboinput);
+            List<string> selectedstock = GetTextArray(comboinput);
 
             if (combohastxt & IDisValid(selectedstock))
             {
@@ -224,11 +291,11 @@ namespace DataStructureTest
                 foreach (string stock in selectedstock)
                 {
                     List<Top50> tempTop50list = new List<Top50>();
-                    List<Sdata> tempsdata = datadic[stock];
+                    List<Sdata> tempsdata = Datadic[stock];
                     tempTop50list = Top50.GetTop50(tempsdata);
-                    Top50list.AddRange(tempTop50list);
+                    top50list.AddRange(tempTop50list);
                 }
-                dgv3.DataSource = Top50list;
+                dgv3.DataSource = top50list;
                 top50timer.Stop();
                 richTextBox1.Text += "Top50 產生時間 : " + ShowTime(top50timer) + "\n";
             }

@@ -54,7 +54,7 @@ namespace DataStructureTest
         /// </summary>
         /// <param name="csvLine">要有8個欄位的string</param>
         /// <returns>回傳Sdata物件</returns>
-        public static Sdata FromCsv(string csvLine)
+        public static Sdata FromCsvLine(string csvLine)
         {
             Sdata sdata = new Sdata();
             string[] line = csvLine.Split(',');

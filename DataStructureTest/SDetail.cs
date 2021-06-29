@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace DataStructureTest
 {
@@ -41,7 +40,7 @@ namespace DataStructureTest
         /// <summary>
         /// 卷商數
         /// </summary>
-        public decimal SetBrokerCnt { get; set; }
+        public decimal SecBrokerCnt { get; set; }
 
         /// <summary>
         /// 輸入已用stockid過濾的Sdata list, 會回傳出sdetail物件(只有一行)
@@ -50,28 +49,36 @@ namespace DataStructureTest
         /// <returns>回傳Sdetail物件</returns>
         public static Sdetail ComputeDetails(List<Sdata> selecteddata)
         {
-            Sdetail Sdetail = new Sdetail();
-            Sdetail.StockID = selecteddata.Select(row => row.StockID).First().ToString();
-            Sdetail.StockName = selecteddata.Select(row => row.StockName).First().ToString();
-            Sdetail.BuyTotal = selecteddata.Sum(row => row.BuyQty);
-            Sdetail.CellTotal = selecteddata.Sum(row => row.CellQty);
-            if (Sdetail.BuyTotal + Sdetail.CellTotal != 0)
+            int buytotal = 0;
+            int celltotal = 0;
+            decimal revenue = 0;
+            HashSet<string> secbrokerset = new HashSet<string>();
+            Sdetail sdetail = new Sdetail();
+            sdetail.StockID = selecteddata[0].StockID;
+            sdetail.StockName = selecteddata[0].StockName;
+            foreach (Sdata sdata in selecteddata)
             {
-                Sdetail.AvgPrice = selecteddata.Sum(row => GetRevenue(row.Price, row.BuyQty, row.CellQty))
-                               / (Sdetail.BuyTotal + Sdetail.CellTotal);
+                int buyqty = sdata.BuyQty;
+                int cellqty = sdata.CellQty;
+                decimal price = sdata.Price;
+                buytotal += buyqty;
+                celltotal += cellqty;
+                revenue += price * (buyqty + cellqty);
+                secbrokerset.Add(sdata.SecBrokerID);
+            }
+            sdetail.BuyTotal = buytotal;
+            sdetail.CellTotal = celltotal;
+            if (buytotal + celltotal != 0)
+            {
+                sdetail.AvgPrice = revenue / (buytotal + celltotal);
             }
             else
             {
-                Sdetail.AvgPrice = 0;
+                sdetail.AvgPrice = 0;
             }
-            Sdetail.BuyCellOver = Sdetail.BuyTotal - Sdetail.CellTotal;
-            Sdetail.SetBrokerCnt = selecteddata.Select(row => row.SecBrokerID).Distinct().Count();
-            //lambda
-            decimal GetRevenue(decimal price, int buyqty, int cellqty)
-            {
-                return price * (buyqty + cellqty);
-            }
-            return Sdetail;
+            sdetail.BuyCellOver = buytotal - celltotal;
+            sdetail.SecBrokerCnt = secbrokerset.Count;
+            return sdetail;
         }
     }
 }
